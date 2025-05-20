@@ -64,7 +64,14 @@ The app calculates:
 
 ## 📸 Preview
 
-![Preview Screenshot](image.png)
+![image](https://github.com/user-attachments/assets/9b63ee80-448d-4f04-a44b-555c9fb38a00)
+![image](https://github.com/user-attachments/assets/eb0dba08-9a05-467b-ad77-328c54e94a9d)
+![image](https://github.com/user-attachments/assets/6319f012-564a-4db7-908b-c46ac91f15ff)
+![image](https://github.com/user-attachments/assets/40c1acb0-fceb-46cb-8bfa-b78bda6d8d43)
+
+
+
+
 
 *(Example UI layout with charts and progress indicators)*
 
