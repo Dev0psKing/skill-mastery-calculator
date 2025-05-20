@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10,000 Hour Mastery Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.2.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --success: #4cc9f0;
+            --text: #2b2d42;
+            --light: #f8f9fa;
+            --highlight: #f72585;
+            --chart1: #7209b7;
+            --chart2: #3a0ca3;
+            --chart3: #4361ee;
+            --chart4: #4895ef;
+            --chart5: #4cc9f0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--highlight));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 0.95em;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group input[type="text"],
+        .input-group input[type="number"],
+        .input-group input[type="date"],
+        .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            background-color: white;
+            color: var(--text);
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .input-group input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        .input-group input[type="number"]::-webkit-outer-spin-button,
+        .input-group input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .input-group .duration-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-group .duration-container input[type="number"] {
+            flex-grow: 1;
+        }
+
+        .input-group .duration-container select {
+            width: auto;
+            flex-basis: 120px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #results {
+            margin-top: 30px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .results-text-summary {
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(72, 149, 239, 0.1) 100%);
+            border-left: 5px solid var(--primary);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .results-text-summary h2 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .results-text-summary h2::before {
+            content: "📊";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .results-text-summary p {
+            margin: 12px 0;
+            font-size: 1.05em;
+            display: flex;
+            align-items: center;
+        }
+
+        .results-text-summary p::before {
+            content: "•";
+            color: var(--highlight);
+            margin-right: 8px;
+            font-size: 1.5em;
+            line-height: 0;
+        }
+
+        .results-text-summary strong {
+            color: var(--secondary);
+            margin-right: 5px;
+            min-width: 220px;
+            display: inline-block;
+        }
+
+        .visuals-container {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .visuals-container h3 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.4em;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .visuals-container h3::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(to right, var(--highlight), var(--primary));
+            border-radius: 3px;
+        }
+
+        .chart-container {
+            margin-bottom: 35px;
+            position: relative;
+            height: auto;
+            width: 100%;
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .progress-bar-container {
+            margin-bottom: 30px;
+        }
+
+        .progress-bar-label {
+            font-size: 0.95em;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .progress-bar-outer {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, var(--chart3), var(--chart5));
+            width: 0%;
+            border-radius: 10px 0 0 10px;
+            transition: width 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar-inner::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0) 0%,
+                    rgba(255, 255, 255, 0.3) 50%,
+                    rgba(255, 255, 255, 0) 100%
+            );
+            animation: shimmer 2s infinite;
+        }
+
+        .progress-bar-inner.full {
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--highlight), #f72585);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .error {
+            color: #e63946;
+            font-size: 0.9em;
+            margin-top: 8px;
+            font-weight: 500;
+            padding: 10px;
+            background-color: rgba(230, 57, 70, 0.1);
+            border-radius: 5px;
+            border-left: 3px solid #e63946;
+            animation: shake 0.5s;
+        }
+
+        #masteryAchievedMessage {
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(76, 201, 240, 0.2) 0%, rgba(72, 149, 239, 0.2) 100%);
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+            border: 1px dashed var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .results-text-summary strong {
+                min-width: 160px;
+            }
+
+            .input-group .duration-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .input-group .duration-container select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>10,000 Hour Mastery Calculator</h1>
+
+    <div class="input-group">
+        <label for="activity">🎯 Activity/Skill Name:</label>
+        <input type="text" id="activity" placeholder="e.g. Playing Piano" value="Learning JavaScript">
+    </div>
+
+    <div class="input-group">
+        <label for="currentHours">⏱️ Current Hours Practiced (Optional):</label>
+        <input type="number" id="currentHours" value="0" min="0" placeholder="0">
+    </div>
+
+    <div class="input-group">
+        <label for="startDate">📅 Start Date (or Date of Current Hours):</label>
+        <input type="date" id="startDate">
+    </div>
+
+    <div class="input-group">
+        <label for="sessionsPerWeek">📝 Practice Sessions Per Week:</label>
+        <input type="number" id="sessionsPerWeek" value="3" min="0" placeholder="3">
+    </div>
+
+    <div class="input-group">
+        <label for="durationPerSession">⏳ Duration Per Session:</label>
+        <div class="duration-container">
+            <input type="number" id="durationPerSession" value="90" min="0" placeholder="90">
+            <select id="durationUnit">
+                <option value="minutes" selected>Minutes</option>
+                <option value="hours">Hours</option>
+            </select>
+        </div>
+    </div>
+
+    <button id="calculateBtn">🚀 Calculate / Update</button>
+
+    <div id="results" class="hidden">
+        <div class="results-text-summary">
+            <h2>Mastery Plan for <span id="resultActivityName"></span>:</h2>
+            <p><strong>Current Hours Logged:</strong> <span id="resultCurrentHours"></span></p>
+            <p><strong>Practice Rate:</strong> <span id="resultPracticeRate"></span> hours per week</p>
+            <p id="remainingHoursRow"><strong>Remaining Hours to Mastery (10,000):</strong> <span id="resultRemainingHours"></span></p>
+            <p id="timeToMasteryRow"><strong>Estimated Time to Reach 10,000 Hours:</strong> <span id="resultTimeToMastery"></span></p>
+            <p id="completionDateRow"><strong>Estimated Completion Date:</strong> <span id="resultCompletionDate"></span></p>
+            <p id="masteryAchievedMessage" class="hidden"></p>
+        </div>
+
+        <div class="visuals-container">
+            <h3>Visual Progress</h3>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar-label" id="progressBarLabel">Progress Towards 10,000 Hours</div>
+                <div class="progress-bar-outer">
+                    <div id="progressBarInner" class="progress-bar-inner">0%</div>
+                </div>
+            </div>
+
+            <div class="chart-container" id="doughnutChartContainer">
+                <canvas id="progressDoughnutChart"></canvas>
+            </div>
+
+            <div class="chart-container" id="lineChartContainer">
+                <canvas id="projectionLineChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div id="errorMessage" class="error hidden"></div>
+</div>
+
+<script>
+    const TARGET_HOURS = 10000;
+
+    // Get DOM elements
+    const activityInput = document.getElementById('activity');
+    const currentHoursInput = document.getElementById('currentHours');
+    const startDateInput = document.getElementById('startDate');
+    const sessionsPerWeekInput = document.getElementById('sessionsPerWeek');
+    const durationPerSessionInput = document.getElementById('durationPerSession');
+    const durationUnitInput = document.getElementById('durationUnit');
+    const calculateBtn = document.getElementById('calculateBtn');
+
+    const resultsDiv = document.getElementById('results');
+    const errorMessageDiv = document.getElementById('errorMessage');
+
+    // Result display elements
+    const resultActivityName = document.getElementById('resultActivityName');
+    const resultCurrentHours = document.getElementById('resultCurrentHours');
+    const resultPracticeRate = document.getElementById('resultPracticeRate');
+    const resultRemainingHours = document.getElementById('resultRemainingHours');
+    const resultTimeToMastery = document.getElementById('resultTimeToMastery');
+    const resultCompletionDate = document.getElementById('resultCompletionDate');
+    const masteryAchievedMessage = document.getElementById('masteryAchievedMessage');
+    const remainingHoursRow = document.getElementById('remainingHoursRow');
+    const timeToMasteryRow = document.getElementById('timeToMasteryRow');
+    const completionDateRow = document.getElementById('completionDateRow');
+
+    // Visual elements
+    const progressBarInner = document.getElementById('progressBarInner');
+    const progressBarLabel = document.getElementById('progressBarLabel');
+    const doughnutChartContainer = document.getElementById('doughnutChartContainer');
+    const lineChartContainer = document.getElementById('lineChartContainer');
+
+    // Chart instances
+    let progressDoughnutChartInstance;
+    let projectionLineChartInstance;
+
+    function setDefaultStartDate() {
+        const today = new Date();
+        startDateInput.value = today.toISOString().split('T')[0];
+    }
+    setDefaultStartDate();
+
+    function formatDate(dateObj, forChart = false) {
+        if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
+            return "N/A";
+        }
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const year = dateObj.getFullYear();
+        if (forChart) return `${year}-${month}-${day}`;
+        return `${day}/${month}/${year}`;
+    }
+
+    function formatDuration(totalDays) {
+        if (totalDays === Infinity || isNaN(totalDays) || totalDays < 0) {
+            return "N/A (check practice rate)";
+        }
+        if (totalDays === 0) return "0 days";
+
+        const daysInYear = 365.25;
+        const daysInMonth = daysInYear / 12;
+
+        let years = Math.floor(totalDays / daysInYear);
+        let remainingDaysAfterYears = totalDays % daysInYear;
+        let months = Math.floor(remainingDaysAfterYears / daysInMonth);
+        let days = Math.ceil(remainingDaysAfterYears % daysInMonth);
+
+        if (days >= Math.round(daysInMonth)) {
+            months++;
+            days = 0;
+        }
+        if (months >= 12) {
+            years++;
+            months = 0;
+        }
+
+        let parts = [];
+        if (years > 0) parts.push(`${years} year${years > 1 ? 's' : ''}`);
+        if (months > 0) parts.push(`${months} month${months > 1 ? 's' : ''}`);
+        if (days > 0 || parts.length === 0) parts.push(`${days} day${days > 1 ? 's' : ''}`);
+
+        return parts.join(', ');
+    }
+
+    function calculateMastery() {
+        resultsDiv.classList.add('hidden');
+        errorMessageDiv.classList.add('hidden');
+        errorMessageDiv.textContent = '';
+        masteryAchievedMessage.classList.add('hidden');
+
+        remainingHoursRow.classList.remove('hidden');
+        timeToMasteryRow.classList.remove('hidden');
+        completionDateRow.classList.remove('hidden');
+        doughnutChartContainer.classList.remove('hidden');
+        lineChartContainer.classList.remove('hidden');
+
+        const activityName = activityInput.value.trim();
+        const currentHours = parseFloat(currentHoursInput.value) || 0;
+        const startDateValue = startDateInput.value;
+        const sessionsPerWeek = parseFloat(sessionsPerWeekInput.value);
+        let durationPerSession = parseFloat(durationPerSessionInput.value);
+        const durationUnit = durationUnitInput.value;
+
+        if (!activityName) {
+            errorMessageDiv.textContent = "Please enter an activity name.";
+            errorMessageDiv.classList.remove('hidden');
+            return;
+        }
+        if (isNaN(sessionsPerWeek) || sessionsPerWeek < 0 || isNaN(durationPerSession) || durationPerSession < 0) {
+            errorMessageDiv.textContent = "Practice sessions and duration must be non-negative numbers.";
+            errorMessageDiv.classList.remove('hidden');
+            return;
+        }
+        if (!startDateValue) {
+            errorMessageDiv.textContent = "Please select a start date.";
+            errorMessageDiv.classList.remove('hidden');
+            return;
+        }
+        const startDate = new Date(startDateValue + "T00:00:00");
+        if (isNaN(startDate.getTime())) {
+            errorMessageDiv.textContent = "Invalid start date format. Please use YYYY-MM-DD.";
+            errorMessageDiv.classList.remove('hidden');
+            return;
+        }
+
+        if (durationUnit === 'minutes') {
+            durationPerSession /= 60;
+        }
+
+        const hoursPerWeek = sessionsPerWeek * durationPerSession;
+        let remainingHours = TARGET_HOURS - currentHours;
+
+        resultActivityName.textContent = activityName;
+        resultCurrentHours.textContent = currentHours.toFixed(2);
+        resultPracticeRate.textContent = hoursPerWeek.toFixed(2);
+
+        const progressPercent = Math.min(100, (currentHours / TARGET_HOURS) * 100);
+        progressBarInner.style.width = `${progressPercent}%`;
+        progressBarInner.textContent = `${progressPercent.toFixed(0)}%`;
+        progressBarInner.classList.toggle('full', progressPercent >= 100);
+        progressBarLabel.textContent = `Progress Towards 10,000 Hours (${currentHours.toFixed(0)} / ${TARGET_HOURS})`;
+
+        try {
+            if (progressDoughnutChartInstance) {
+                progressDoughnutChartInstance.destroy();
+            }
+            const doughnutCtx = document.getElementById('progressDoughnutChart').getContext('2d');
+            if (!doughnutCtx) throw new Error("Doughnut chart canvas context not found");
+
+            progressDoughnutChartInstance = new Chart(doughnutCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Hours Practiced', 'Hours Remaining'],
+                    datasets: [{
+                        label: 'Hour Breakdown',
+                        data: [currentHours, Math.max(0, remainingHours)],
+                        backgroundColor: ['rgba(114, 9, 183, 0.8)', 'rgba(67, 97, 238, 0.8)'],
+                        borderColor: ['rgba(114, 9, 183, 1)', 'rgba(67, 97, 238, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Practice Hours Distribution',
+                            font: {
+                                size: 16,
+                                family: 'Poppins',
+                                weight: 'bold'
+                            },
+                            color: '#2b2d42'
+                        },
+                        legend: {
+                            labels: {
+                                font: {
+                                    family: 'Poppins'
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%',
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                }
+            });
+        } catch (e) {
+            console.error("Error creating doughnut chart:", e);
+            doughnutChartContainer.innerHTML = `<p class="error" style="text-align:center;">Could not load doughnut chart. ${e.message}</p>`;
+        }
+
+        if (remainingHours <= 0) {
+            resultRemainingHours.textContent = "0.00";
+            resultTimeToMastery.textContent = "Already achieved!";
+            resultCompletionDate.textContent = "N/A";
+            masteryAchievedMessage.textContent = `🎉 Congratulations! You've already reached or surpassed 10,000 hours for ${activityName}! 🎉`;
+            masteryAchievedMessage.classList.remove('hidden');
+
+            remainingHoursRow.classList.add('hidden');
+            timeToMasteryRow.classList.add('hidden');
+            completionDateRow.classList.add('hidden');
+            lineChartContainer.classList.add('hidden');
+        } else {
+            resultRemainingHours.textContent = remainingHours.toFixed(2);
+
+            if (hoursPerWeek <= 0) {
+                resultTimeToMastery.textContent = "Never (at current practice rate)";
+                resultCompletionDate.textContent = "Never";
+                lineChartContainer.classList.add('hidden');
+            } else {
+                const weeksToMastery = remainingHours / hoursPerWeek;
+                const daysToMastery = weeksToMastery * 7;
+                resultTimeToMastery.textContent = formatDuration(daysToMastery);
+
+                const completionDate = new Date(startDate);
+                completionDate.setDate(startDate.getDate() + Math.ceil(daysToMastery));
+                resultCompletionDate.textContent = formatDate(completionDate);
+
+                try {
+                    if (projectionLineChartInstance) {
+                        projectionLineChartInstance.destroy();
+                    }
+                    const lineCtx = document.getElementById('projectionLineChart').getContext('2d');
+                    if (!lineCtx) throw new Error("Line chart canvas context not found");
+
+                    // Create monthly data points
+                    const dateLabels = [];
+                    const dataPoints = [];
+                    const currentDate = new Date(startDate);
+                    const endDate = new Date(completionDate);
+                    const hoursPerDay = hoursPerWeek / 7;
+
+                    while (currentDate <= endDate) {
+                        dateLabels.push(new Date(currentDate));
+                        const daysElapsed = (currentDate - startDate) / (1000 * 60 * 60 * 24);
+                        const hours = currentHours + (daysElapsed * hoursPerDay);
+                        dataPoints.push(Math.min(TARGET_HOURS, hours));
+                        currentDate.setMonth(currentDate.getMonth() + 1);
+                    }
+                    if (dateLabels[dateLabels.length-1] < endDate) {
+                        dateLabels.push(new Date(endDate));
+                        dataPoints.push(TARGET_HOURS);
+                    }
+
+                    projectionLineChartInstance = new Chart(lineCtx, {
+                        type: 'line',
+                        data: {
+                            labels: dateLabels,
+                            datasets: [{
+                                label: `Projected Hours for ${activityName}`,
+                                data: dataPoints,
+                                fill: true,
+                                backgroundColor: 'rgba(72, 149, 239, 0.2)',
+                                borderColor: 'rgb(72, 149, 239)',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                pointBackgroundColor: 'rgb(247, 37, 133)',
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            aspectRatio: 2,
+                            scales: {
+                                x: {
+                                    type: 'time',
+                                    time: {
+                                        unit: 'month',
+                                        tooltipFormat: 'DD MMM YYYY'
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Date',
+                                        font: {
+                                            family: 'Poppins',
+                                            weight: 'bold'
+                                        }
+                                    },
+                                    grid: {
+                                        display: false
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Hours Practiced',
+                                        font: {
+                                            family: 'Poppins',
+                                            weight: 'bold'
+                                        }
+                                    },
+                                    max: TARGET_HOURS + (TARGET_HOURS * 0.05),
+                                    grid: {
+                                        color: 'rgba(0,0,0,0.05)'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Projection to Mastery (10,000 Hours)',
+                                    font: {
+                                        size: 16,
+                                        family: 'Poppins',
+                                        weight: 'bold'
+                                    },
+                                    color: '#2b2d42'
+                                },
+                                legend: {
+                                    labels: {
+                                        font: {
+                                            family: 'Poppins'
+                                        }
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0,0,0,0.8)',
+                                    titleFont: {
+                                        family: 'Poppins',
+                                        weight: 'bold'
+                                    },
+                                    bodyFont: {
+                                        family: 'Poppins'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    lineChartContainer.classList.remove('hidden');
+                } catch (e) {
+                    console.error("Error creating line chart:", e);
+                    lineChartContainer.innerHTML = `<p class="error" style="text-align:center;">Could not load projection chart. ${e.message}</p>`;
+                }
+            }
+        }
+        resultsDiv.classList.remove('hidden');
+    }
+
+    calculateBtn.addEventListener('click', calculateMastery);
+
+    [activityInput, currentHoursInput, startDateInput, sessionsPerWeekInput, durationPerSessionInput, durationUnitInput].forEach(input => {
+        input.addEventListener('input', calculateMastery);
+        if (input.tagName === 'SELECT' || input.type === 'date') {
+            input.addEventListener('change', calculateMastery);
+        }
+    });
+
+    // Initial calculation
+    calculateMastery();
+</script>
+</body>
+</html>
